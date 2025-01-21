@@ -17,14 +17,21 @@ public class ConcurrentBank {
         throw new IllegalArgumentException("Аккаунт с таким номером уже существует");
     }
 
-    public synchronized void transfer(BankAccount fromAccount, BankAccount toAccount, BigDecimal amount) {
+    public void transfer(BankAccount fromAccount, BankAccount toAccount, BigDecimal amount) {
         if (fromAccount == null || toAccount == null) {
             throw new IllegalArgumentException("Один из счетов не существует.");
         }
 
-        fromAccount.withdraw(amount);
-        toAccount.deposit(amount);
+        BankAccount firstLock = Integer.parseInt(fromAccount.getAccountNumber()) < Integer.parseInt(toAccount.getAccountNumber())
+                ? fromAccount : toAccount;
+        BankAccount secondLock = firstLock == fromAccount ? toAccount : fromAccount;
 
+        synchronized (firstLock) {
+            synchronized (secondLock) {
+                fromAccount.withdraw(amount);
+                toAccount.deposit(amount);
+            }
+        }
     }
 
     public BigDecimal getTotalBalance() {
