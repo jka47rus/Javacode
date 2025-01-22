@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ComplexTaskExecutorTest {
+public class ComplexTaskTest {
 
 
     @Test
@@ -14,13 +14,12 @@ public class ComplexTaskExecutorTest {
         int numberOfTasks = 5;
         ComplexTaskExecutor executor = new ComplexTaskExecutor(numberOfTasks);
 
-        // Запускаем задачи
         executor.executeTasks(numberOfTasks);
 
-        // Ожидаем, что результат будет равен сумме 1 + 2 + 3 + 4 + 5 = 15
-        int expectedResult = 15;
+        int expected = 15;
 
-        // Проверяем, что финальный результат соответствует ожидаемому значению
-        assertEquals(expectedResult, ComplexTask.getResult());
+        Thread.sleep(200);
+
+        assertEquals(expected, ComplexTask.getResult());
     }
 }
