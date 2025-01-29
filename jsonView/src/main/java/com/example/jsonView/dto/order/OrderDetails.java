@@ -1,4 +1,5 @@
 package com.example.jsonView.dto.order;
 
-public interface OrderDetails {
+
+public interface OrderDetails extends OrderSummary {
 }

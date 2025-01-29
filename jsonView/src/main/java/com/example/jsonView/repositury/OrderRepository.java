@@ -1,4 +1,8 @@
 package com.example.jsonView.repositury;
 
-public class OrderRepository {
+import com.example.jsonView.entity.Order;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface OrderRepository extends JpaRepository<Order, Long> {
 }
+

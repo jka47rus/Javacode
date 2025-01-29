@@ -1,4 +1,4 @@
 package com.example.jsonView.dto.user;
 
-public interface UserDetails {
+public interface UserDetails extends UserSummary {
 }
