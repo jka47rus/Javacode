@@ -1,13 +1,12 @@
 package com.example.Library.service;
 
-import com.example.Library.dto.BookFilter;
 import com.example.Library.entity.Book;
 import com.example.Library.repository.BookRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,8 +15,8 @@ public class BookService {
 
     private BookRepository bookRepository;
 
-    public List<Book> findAll(BookFilter bookFilter) {
-        return bookRepository.findAll(PageRequest.of(bookFilter.getPageNumber(), bookFilter.getPageSize())).getContent();
+    public Page<Book> findAll(Pageable pageable) {
+        return bookRepository.findAll(pageable);
     }
 
     public Optional<Book> findById(Long id) {

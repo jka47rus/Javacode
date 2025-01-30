@@ -1,18 +1,18 @@
 package com.example.Library.controller;
 
-import com.example.Library.dto.BookFilter;
 import com.example.Library.entity.Author;
 import com.example.Library.entity.Book;
 import com.example.Library.exception.ResourceNotFoundException;
 import com.example.Library.service.AuthorService;
 import com.example.Library.service.BookService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -25,9 +25,8 @@ public class BookController {
     private AuthorService authorService;
 
     @GetMapping
-    public ResponseEntity<List<Book>> getAllBooks(BookFilter filter) {
-
-        return ResponseEntity.ok(bookService.findAll(filter));
+    public PagedModel<Book> getAllBook(Pageable pageable) {
+        return new PagedModel<>(bookService.findAll(pageable));
     }
 
     @GetMapping("/{id}")

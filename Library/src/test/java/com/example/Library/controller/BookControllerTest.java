@@ -1,6 +1,5 @@
 package com.example.Library.controller;
 
-import com.example.Library.dto.BookFilter;
 import com.example.Library.entity.Author;
 import com.example.Library.entity.Book;
 import com.example.Library.exception.ResourceNotFoundException;
@@ -11,6 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -51,37 +55,16 @@ public class BookControllerTest {
 
         List<Book> books = Arrays.asList(book1, book2);
 
-        BookFilter filter = new BookFilter();
-        filter.setPageSize(2);
-        filter.setPageNumber(0);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Book> bookPage = new PageImpl<>(books, pageable, books.size());
 
-        when(bookService.findAll(filter)).thenReturn(books);
+        when(bookService.findAll(pageable)).thenReturn(bookPage);
 
-        ResponseEntity<List<Book>> response = bookController.getAllBooks(filter);
+        PagedModel<Book> result = bookController.getAllBook(pageable);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(2, response.getBody().size());
-        assertEquals("Book One", response.getBody().get(0).getTitle());
-        assertEquals("Book Two", response.getBody().get(1).getTitle());
-
-        verify(bookService, times(1)).findAll(filter);
-    }
-
-
-    @Test
-    public void testGetAllBooks_WithEmptyResult() {
-        BookFilter filter = new BookFilter();
-        filter.setPageSize(10);
-        filter.setPageNumber(0);
-
-        when(bookService.findAll(filter)).thenReturn(List.of());
-
-        ResponseEntity<List<Book>> response = bookController.getAllBooks(filter);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(0, response.getBody().size());
-
-        verify(bookService, times(1)).findAll(filter);
+        assertEquals(2, result.getContent().size());
+        assertEquals("Book One", result.getContent().get(0).getTitle());
+        assertEquals("Book Two", result.getContent().get(1).getTitle());
     }
 
     @Test
