@@ -20,14 +20,23 @@ public class ProductController {
     private ObjectMapper objectMapper;
 
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public List<?> getAllProducts() {
+
+
+        return productService.getAllProducts().stream().map(product -> {
+                    try {
+                        return objectMapper.writeValueAsString(product);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+    public ResponseEntity<?> getProductById(@PathVariable Long id) throws JsonProcessingException {
         Product product = productService.getProductById(id);
-        return product != null ? ResponseEntity.ok(product) : ResponseEntity.notFound().build();
+        return product != null ? ResponseEntity.ok(objectMapper.writeValueAsString(product)) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
@@ -36,7 +45,8 @@ public class ProductController {
         try {
             Product product = objectMapper.readValue(productJson, Product.class);
             Product createdProduct = productService.createProduct(product);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(objectMapper.writeValueAsString(createdProduct));
 
         } catch (JsonProcessingException e) {
             return new ResponseEntity<>("Введены неправильные данные", HttpStatus.BAD_REQUEST);
@@ -46,7 +56,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody String productJson) {
+    public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody String productJson) throws JsonProcessingException {
         Product productDetails;
         try {
             productDetails = objectMapper.readValue(productJson, Product.class);
@@ -56,7 +66,7 @@ public class ProductController {
         }
 
         Product updatedProduct = productService.updateProduct(id, productDetails);
-        return updatedProduct != null ? ResponseEntity.ok(updatedProduct) : ResponseEntity.notFound().build();
+        return updatedProduct != null ? ResponseEntity.ok(objectMapper.writeValueAsString(updatedProduct)) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")

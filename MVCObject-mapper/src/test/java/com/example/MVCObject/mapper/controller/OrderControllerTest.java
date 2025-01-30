@@ -15,13 +15,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -55,10 +54,14 @@ class OrderControllerTest {
         Order order1 = new Order();
         Order order2 = new Order();
         when(orderService.getAllOrders()).thenReturn(Arrays.asList(order1, order2));
+        String order1Json = objectMapper.writeValueAsString(order1);
+        String order2Json = objectMapper.writeValueAsString(order2);
 
-        mockMvc.perform(get("/api/orders")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+        List<String> expected = Arrays.asList(order1Json, order2Json);
+
+        List<?> allOrders = orderController.getAllOrders();
+
+        assertEquals(expected, allOrders);
 
         verify(orderService, times(1)).getAllOrders();
     }
@@ -68,9 +71,12 @@ class OrderControllerTest {
         Order order = new Order();
         when(orderService.getOrderById(1L)).thenReturn(order);
 
-        mockMvc.perform(get("/api/orders/1")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+        String orderJson = objectMapper.writeValueAsString(order);
+
+        ResponseEntity<?> response = orderController.getOrderById(1L);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(orderJson, response.getBody());
 
         verify(orderService, times(1)).getOrderById(1L);
     }
@@ -89,19 +95,18 @@ class OrderControllerTest {
 
     @Test
     void createOrder_Success() throws Exception {
-        String orderJson = "{\"orderId\": 1, \"customer\": {\"customerId\": 1}, \"products\": [], \"shippingAddress\": \"123 Main St\"}";
         Order order = new Order();
         order.setOrderId(1L);
         order.setShippingAddress("123 Main St");
 
         when(orderService.createOrder(any(Order.class))).thenReturn(order);
 
-        mockMvc.perform(post("/api/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(orderJson))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.orderId").value(1))
-                .andExpect(jsonPath("$.shippingAddress").value("123 Main St"));
+        String orderJson = objectMapper.writeValueAsString(order);
+
+        ResponseEntity<?> response = orderController.createOrder(orderJson);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(orderJson, response.getBody());
 
         verify(orderService, times(1)).createOrder(any(Order.class));
     }

@@ -21,14 +21,21 @@ public class OrderController {
 
 
     @GetMapping
-    public List<Order> getAllOrders() {
-        return orderService.getAllOrders();
+    public List<?> getAllOrders() {
+        return orderService.getAllOrders().stream().map(order -> {
+                    try {
+                        return objectMapper.writeValueAsString(order);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+    public ResponseEntity<?> getOrderById(@PathVariable Long id) throws JsonProcessingException {
         Order order = orderService.getOrderById(id);
-        return order != null ? ResponseEntity.ok(order) : ResponseEntity.notFound().build();
+        return order != null ? ResponseEntity.ok(objectMapper.writeValueAsString(order)) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
@@ -37,7 +44,7 @@ public class OrderController {
         try {
             Order order = objectMapper.readValue(orderJson, Order.class);
             Order createdOrder = orderService.createOrder(order);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+            return ResponseEntity.status(HttpStatus.CREATED).body(objectMapper.writeValueAsString(createdOrder));
 
         } catch (JsonProcessingException e) {
             return new ResponseEntity<>("Введены неправильные данные", HttpStatus.BAD_REQUEST);
