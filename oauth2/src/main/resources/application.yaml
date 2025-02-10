@@ -21,8 +21,8 @@ spring:
           #            scope: profile, email
           #            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
           github:
-            client-id: Ov23li3GQfwzS8l3ycOF
-            client-secret: ed4435e8b96c26c531b66036787657f8b2135d1e
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
             scope: read:user, user:email
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
 

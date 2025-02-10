@@ -1,9 +1,16 @@
 package com.example.oauth2.configuration;
 
 import com.example.oauth2.service.SocialAppService;
+import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -66,11 +73,17 @@ public class SecurityConfig {
         return new InMemoryClientRegistrationRepository(this.githubClientRegistration());
     }
 
+
     private ClientRegistration githubClientRegistration() {
+        String clientId = System.getenv("GITHUB_CLIENT_ID");
+        String clientSecret = System.getenv("GITHUB_CLIENT_SECRET");
+
         return CommonOAuth2Provider.GITHUB.getBuilder("github")
-                .clientId("Ov23li3GQfwzS8l3ycOF")
-                .clientSecret("ed4435e8b96c26c531b66036787657f8b2135d1e")
+                .clientId(clientId)
+                .clientSecret(clientSecret)
                 .scope("read:user", "user:email")
                 .build();
     }
+
+
 }
